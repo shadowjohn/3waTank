@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="主砲彈藥與榴彈補給">
+  <defs>
+    <g id="round" stroke="#172b37" stroke-width="6" stroke-linejoin="round">
+      <path d="M0 33 14 0 28 33 28 107 0 107Z" fill="#fff0d2"/>
+      <path d="M0 43H28V107H0Z" fill="#f8aa70"/>
+      <path d="M18 43H28V107H18Z" fill="#c4774d" stroke="none"/>
+      <path d="M-3 97H31V110H-3Z" fill="#ffe0aa"/>
+    </g>
+  </defs>
+  <g stroke="#172b37" stroke-width="7" stroke-linejoin="round">
+    <path d="M27 137 142 137 158 151 158 216 27 216Z" fill="#ae583e"/>
+    <path d="M27 137 43 125H143L158 151H27Z" fill="#e4a273"/>
+  </g>
+  <use href="#round" x="36" y="42"/>
+  <use href="#round" x="79" y="25"/>
+  <use href="#round" x="122" y="42"/>
+  <g stroke="#172b37" stroke-width="7" stroke-linejoin="round">
+    <path d="M25 143H160V212H25Z" fill="#d37b51"/>
+    <path d="M25 143H160V160H25Z" fill="#f5b780"/>
+    <path d="M48 175H65V196H48ZM81 175H98V196H81ZM114 175H131V196H114Z" fill="#fff0d2" stroke="none"/>
+    <path d="M181 127V112H206V129" fill="#c4774d"/>
+    <circle cx="210" cy="110" r="12" fill="none" stroke="#fff0d2" stroke-width="6"/>
+    <path d="M180 126 167 144 164 187 179 213H209L226 187 222 144 208 126Z" fill="#e0e5cc"/>
+    <path d="M200 129 210 146 213 185 204 210H217L230 187 225 144 211 128Z" fill="#9ca991" stroke="none"/>
+    <path d="M168 151H221M165 177H226M191 128V212" fill="none" stroke-width="5"/>
+    <path d="M185 118H210L226 153" fill="none" stroke="#172b37" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

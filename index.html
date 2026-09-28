@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1118">
+    <meta name="description" content="重裝突圍：50 關 3D 坦克基地保衛戰。穿越不同戰區、跳車拿起步槍、奪車反擊，守住最後一道防線。">
+    <title>重裝突圍 — TANK / REDEPLOY</title>
+    <link rel="stylesheet" href="./style.css?v=20260928-14">
+  </head>
+  <body data-state="loading">
+    <canvas id="battlefield" aria-label="3D 坦克戰場，使用 WASD 移動、滑鼠瞄準射擊、F 上下車、E 部署無人機、按住 Shift 使用氮氣或急跑、右鍵或 G 發射追蹤飛彈／投擲榴彈、R 步槍換彈、Z 包紮" tabindex="0"></canvas>
+    <div id="damage-flash" class="damage-flash" aria-hidden="true"></div>
+    <div id="blood-overlay" class="blood-overlay" aria-hidden="true"></div>
+
+    <header class="masthead">
+      <a class="brand" href="./" aria-label="重裝突圍首頁">
+        <span class="insignia" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 20h22v6H5zM9 13h14v7H9zM14 6h4v8h-4z"/><path class="insignia-line" d="M7 28h18"/></svg></span>
+        <span><strong>重裝突圍</strong><small>TANK / REDEPLOY</small></span>
+      </a>
+      <div class="header-actions">
+        <button id="sound-button" class="utility-button" type="button" aria-label="切換音效" title="切換音效">音效 開</button>
+        <button id="voice-button" class="utility-button" type="button" aria-label="切換戰場語音" aria-pressed="true" title="切換基地與敵軍語音、字幕">語音 ON</button>
+        <button id="pause-button" class="utility-button" type="button" aria-label="暫停遊戲" title="暫停遊戲（P）">暫停 <span aria-hidden="true">Ⅱ</span></button>
+      </div>
+    </header>
+
+    <main class="game-ui">
+      <section class="mission-strip" aria-label="戰況">
+        <div class="mission-objective"><span class="status-dot"></span><span><span id="region-name">城市戰區 · 守住基地</span><strong id="level-name">01 / 50 · 夜哨街口</strong><span id="enemy-base-count" class="enemy-base-count">敵方基地 1 / 1</span></span></div>
+        <div class="mission-counters">
+          <div><span class="metric-label">波次</span><strong id="wave">01 / 03</strong></div>
+          <div><span class="metric-label">敵軍</span><strong id="remaining">—</strong></div>
+          <div><span class="metric-label">得分</span><strong id="score">0000</strong></div>
+        </div>
+      </section>
+
+      <section id="boss-status" class="boss-status" aria-labelledby="boss-name" hidden>
+        <div class="boss-heading"><span class="boss-warning" aria-hidden="true">!</span><label id="boss-name" for="boss-hp">毀城者</label><span id="boss-hp-label">—</span></div>
+        <progress id="boss-hp" max="100" aria-describedby="boss-state"></progress>
+        <p id="boss-state">重裝魔王</p>
+      </section>
+
+      <aside id="enemy-radio" class="enemy-radio" role="status" aria-live="polite" hidden>
+        <div class="radio-heading"><span id="radio-channel">敵軍頻道 · 無線電攔截</span><strong id="radio-speaker"></strong></div>
+        <p id="radio-text"></p>
+      </aside>
+
+      <section id="overlay" class="overlay" aria-labelledby="overlay-title">
+        <div class="briefing">
+          <div class="briefing-content">
+            <p id="overlay-kicker" class="eyebrow">50-STAGE CAMPAIGN</p>
+            <h1 id="overlay-title">重裝突圍<span class="title-period">.</span></h1>
+            <p id="overlay-description" class="briefing-description">守住基地。必要時，跳車再戰。</p>
+            <div class="briefing-rule"><span></span><span>氮氣突圍、無人機追擊，砲彈有限就搶車。</span></div>
+            <div class="tactics" aria-label="玩法簡介">
+              <span><b>F</b> 跳車作戰</span><span><b>E</b> 無人機</span><span><b>Shift</b> 氮氣／急跑</span>
+            </div>
+            <p class="infantry-help"><span>右鍵/<kbd>G</kbd> 飛彈／榴彈</span><span><kbd>R</kbd> 步槍換彈 · <kbd>Z</kbd> 包紮 1.5 秒</span></p>
+            <div class="pickup-legend" aria-label="戰場補給">
+              <span><img src="./assets/pickups/ammo.svg" width="36" height="36" alt="">武器補給</span>
+              <span><img src="./assets/pickups/repair.png" width="36" height="36" alt="">維修補給</span>
+              <span><img src="./assets/pickups/drone.png" width="36" height="36" alt="">無人機組</span>
+              <span><img src="./assets/pickups/missile.png" width="36" height="36" alt="">追蹤彈 +4</span>
+            </div>
+            <div class="campaign-selector">
+              <label for="level-select">選擇關卡</label>
+              <select id="level-select" class="level-select" aria-describedby="level-briefing campaign-progress" disabled><option value="0">正在載入戰役…</option></select>
+              <p id="level-briefing" class="level-briefing">守住街口防線，利用掩體擊退敵軍。</p>
+              <p id="campaign-progress" class="campaign-progress">50 關戰役 · 進度自動保存在此瀏覽器</p>
+            </div>
+            <p class="supply-help">基地每 25 秒輪送武器、無人機、追蹤彈。武器：主砲 +5／榴彈 +1；追蹤彈 +4。</p>
+            <p id="briefing-note" class="briefing-note">單人作戰 <span>／</span> 每關 3 波攻勢 <span>／</span> 50 關等你突圍</p>
+          </div>
+          <div class="briefing-actions">
+            <button id="start-button" class="start-button" type="button" disabled><span>進入戰場</span><span aria-hidden="true">↗</span></button>
+            <p id="loading" class="loading" role="status">正在整備戰場…</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="player-status" aria-label="我方狀態">
+        <div class="status-heading"><span class="status-dot"></span><strong id="mode">駕駛模式</strong><span class="callsign">ALPHA 01</span></div>
+        <div class="health-row"><label for="player-hp">駕駛員</label><progress id="player-hp" max="100" value="100"></progress><span id="player-hp-label">100</span></div>
+        <div id="tank-status" class="health-row"><label for="tank-hp">坦克裝甲</label><progress id="tank-hp" max="100" value="100"></progress><span id="tank-hp-label">100</span></div>
+        <div class="health-row base-health"><label for="base-hp">基地防線</label><progress id="base-hp" max="100" value="100"></progress><span id="base-hp-label">100</span></div>
+        <div id="weapon-status" class="weapon-status"><span id="weapon-label">主砲彈藥</span><span id="ammo-count">15 / 15</span><span id="missile-count" hidden>追蹤 8/8</span><span id="grenades-count" hidden>榴彈 3</span></div>
+        <div id="wound-status" class="wound-status" hidden><label id="wound-label" for="bandage-progress">流血 · Z 包紮</label><progress id="bandage-progress" max="1.5" value="0"></progress></div>
+        <div id="boost-status" class="support-status boost-status"><label id="boost-label" for="boost-meter">N₂ 氮氣</label><progress id="boost-meter" max="100" value="100" aria-describedby="boost-value"></progress><span id="boost-value">100%</span></div>
+        <div id="drone-status" class="support-status drone-status"><span>無人機</span><span id="drone-count">0 / 2</span><span id="drone-kits">備用 2</span></div>
+      </section>
+
+      <div class="center-messages"><p id="toast" class="toast" aria-live="polite"></p><p id="interaction-hint" class="interaction-hint"></p></div>
+
+      <div id="touch-controls" class="touch-controls" aria-label="觸控操作">
+        <div class="dpad">
+          <button type="button" data-move="up" class="move-up" aria-label="向前移動">↑</button>
+          <button type="button" data-move="left" class="move-left" aria-label="向左移動">←</button>
+          <span class="dpad-center" aria-hidden="true">✦</span>
+          <button type="button" data-move="right" class="move-right" aria-label="向右移動">→</button>
+          <button type="button" data-move="down" class="move-down" aria-label="向後移動">↓</button>
+        </div>
+        <div class="touch-actions"><button id="touch-boost" type="button" aria-label="按住以使用氮氣或急跑（Shift）">N₂ 氮氣</button><button id="touch-interact" type="button" aria-label="上車或下車（F）">上下車</button><button id="touch-drone" type="button" aria-label="部署無人機（E）">無人機</button><button id="touch-bandage" type="button" aria-label="包紮傷口（Z）" disabled>包紮</button><button id="touch-grenade" type="button" aria-label="發射飛彈或投擲榴彈（右鍵／G）" hidden>手榴彈</button><button id="touch-reload" type="button" aria-label="步槍換彈（R）" hidden>換彈</button><button id="touch-fire" type="button" aria-label="射擊">開火<span>FIRE</span></button></div>
+      </div>
+
+      <footer class="field-footer">
+        <div class="keyboard-help"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移動</span><i></i><span>滑鼠 瞄準／開火</span><i></i><span><kbd>F</kbd> 上下車</span><i></i><span><kbd>E</kbd> 無人機</span><i></i><span><kbd>Shift</kbd> 氮氣／急跑</span><i></i><span>右鍵/<kbd>G</kbd> 飛彈／榴彈</span><i></i><span><kbd>R</kbd> 換彈</span><i></i><span><kbd>Z</kbd> 包紮</span><i></i><span><kbd>P</kbd> 暫停</span></div>
+        <div class="edition"><span class="edition-mark">✦</span> 3WA ARCADE <span>/</span> VOL. 01</div>
+      </footer>
+    </main>
+    <script type="module" src="./main.js?v=20260928-13"></script>
+  </body>
+</html>
